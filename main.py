@@ -1,145 +1,83 @@
 import card_art
 import random
+import os
+from time import sleep
 
-def main():
+def deal_card(cards):
+    return random.choice(cards)
+
+def count_score(hand):
+    count = sum(hand)
+    if count == 21 and len(hand) == 2:
+        return 0
+    if count > 21 and 11 in hand:
+        count -= 10
+    return count
+
+def compare(user, comp):
+    if user > 21 and comp > 21:
+        return "You went over. You lose"
+    if user == comp:
+        return "Draw "
+    elif comp == 0:
+        return "Lose, opponent has Blackjack"
+    elif user == 0:
+        return "Win with a Blackjack"
+    elif user > 21:
+        return "You went over. You lose"
+    elif comp > 21:
+        return "Opponent went over. You win"
+    elif user > comp:
+        return "You win"
+    else:
+        return "You lose"
+
+def clear():
+    sleep(1)
+    os.system("clear")
+
+def play_game():
+    print(card_art.logo)
     # Initialize list of card values
     cards = [11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]
 
     # Initialize hand of cards
     user_hand = []
-
     computer_hand = []
+    game_over = False
 
-    restart = True
-    while restart:
-         # Greet user
-        print(card_art.logo)
+    for _ in range(2):
+        user_hand.append(deal_card(cards))
+        computer_hand.append(deal_card(cards))
 
+    while not game_over:
         # Deal 2 cards to user and print user score.
-        for _ in range(2):
-            user_hand.append(deal_card(cards))
         user_score = count_score(user_hand)
-        print(f"Your cards: {user_hand}, current score: {user_score}")
-
-        # Deal 2 card to computer.
-        for _ in range(2):
-            computer_hand.append(deal_card(cards))
         comp_score = count_score(computer_hand)
+        print(f"Your cards: {user_hand}, current score: {user_score}")
+        print(f"Computer's first card: {computer_hand[0]}")
 
         # If computer has a blackjack and the user doesn't have a blackjack, computer wins.
-        if check_blackjack(computer_hand):
-            print(f"Computer's hand: {computer_hand}, computer score: {comp_score}")
-            print("You lose.")
-
-            # Prompt user to restart game
-            restart = restart_game()
-            if not restart:
-                break
-            else:
-                continue
-
-        # If the user has a blackjack and computer doesn't, the user wins.
-        elif not check_blackjack(computer_hand) and check_blackjack(user_hand):
-            print(f"Computer's hand: {computer_hand}, computer score: {comp_score}")
-            print("You win!")
-
-            # Prompt user to restart game
-            restart = restart_game()
-            if not restart:
-                break
-            else:
-                continue
-
-        # Reveal computer's first card to the user. 
+        if user_score == 0 or comp_score == 0 or user_score > 21:
+            game_over = True
         else:
-            print(f"Computer's first card: {computer_hand[0]}")
-
-        # Prompt user to hit or stand.
-        user_choice = hit_or_stand()
-
-        while user_choice:
-            # If user chose hit, deal another card to user's hand and print new score. Prompt user until user wants to stand or score is over 21.
-            user_hand.append(deal_card(cards))
-            user_score = count_score(user_hand)
-            print(f"Your cards: {user_hand}, current score: {user_score}")
-
-            if user_score == 21:
-                print("You win!")
-
-            if user_score > 21:
-                print("You lose.")
-                # Prompt user to restart game
-                restart = restart_game()
-                if not restart:
-                    break
-                else:
-                    continue
+            user_turn = input("Type 'y' to get another card, type 'n' to pass: ")
+            if user_turn == "y":
+                user_hand.append(deal_card(cards))
             else:
-                user_choice = hit_or_stand()
+                game_over = True
         
-        if not user_choice:
-            computer_turn = True
-            while computer_turn:
-                computer_hand.append(deal_card(cards))
-                comp_score = count_score(computer_hand)
-                print(f"Computer's hand: {computer_hand}, computer score: {comp_score}")
-
-                
-
+    while comp_score != 0 and comp_score < 17:
+        computer_hand.append(deal_card(cards))
+        comp_score = count_score(computer_hand)
+    
+    print(f"Your final hand: {user_hand}, final score: {user_score}")
+    print(f"Computer's final hand: {computer_hand}, final score: {comp_score}")
+    print(compare(user_score, comp_score))
+        
             
-
-
-
-
-
-
-
-        
-
-    # If user chose hit, deal another card to user's hand and print new score. Prompt user until user wants to stand.
-        # If user score is > 21, user loses
-        # Else prompt user again
-
-    # If user chose stand, deal another card to computer's hand.
-
-    # Computer keeps drawing cards unless the computer's score goes over 16. 
-
-    # Compare the scores and check if it's a win, tie, or loss.
-
-    # Print players and computers final hands and scores.
-
-    # Ask to play again.
-
-
-def deal_card(cards):
-    return random.choice(cards)
-
-def check_blackjack(hand):
-    if sum(hand) == 21:
-        return True
-
-def count_score(hand):
-    count = sum(hand)
-    if count > 21 and 11 in hand:
-        count -= 10
-    return count
-
-def restart_game():
-    new_game = input("Do you want to play another game of Blackjack? 'Y' or 'N': ")
-    if new_game == 'Y':
-        return True
-    else:
-        return False
-
-def hit_or_stand():
-    choice = input("Type 'Y' to hit, or 'N' to stand: ")
-    if choice == "Y":
-        return True
-    else:
-        return False
-
-
-
-
-if __name__ == "__main__":
-    main()
+    
+                
+while input("Do you want to play a game of Blackjack? 'Y' or 'N': ") == "Y":
+    clear()
+    play_game()
